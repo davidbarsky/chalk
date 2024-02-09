@@ -1042,8 +1042,8 @@ fn rust_analyzer_regression() {
                     PI: ParallelIterator
                 }
             }
-        } yields_first[SolverChoice::slg(4, None)] {
-            expect![["Floundered"]]
+        } yields {
+            expect!["Unique"]
         }
     }
 }

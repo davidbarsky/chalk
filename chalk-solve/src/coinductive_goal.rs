@@ -28,10 +28,34 @@ impl<I: Interner> IsCoinductive<I> for Goal<I> {
                 WhereClause::TypeOutlives(..) => false,
             },
             GoalData::DomainGoal(DomainGoal::WellFormed(WellFormed::Trait(..))) => true,
-            GoalData::Quantified(QuantifierKind::ForAll, goal) => {
-                goal.skip_binders().is_coinductive(db)
-            }
-            _ => false,
+            GoalData::DomainGoal(_) => false,
+
+            // Goals like `forall<..> { G }` or `... => G` we will consider to
+            // be coinductive if G is coinductive, although in practice I think
+            // it would be ok to simply consider them coinductive all the time.
+            GoalData::Quantified(_, goal) => goal.skip_binders().is_coinductive(db),
+            GoalData::Implies(_, goal) => goal.is_coinductive(db),
+
+            // The "All(...)" quantifier is considered coinductive. This could
+            // be somewhat surprising as you might have `All(Gc, Gi)` where `Gc`
+            // is coinductive and `Gi` is inductive. This however is really no
+            // different than defining a fresh coinductive goal like
+            //
+            // ```notrust
+            // Gx :- Gc, Gi
+            // ```
+            //
+            // and requiring `Gx` in place of `All(Gc, Gi)`, and that would be
+            // perfectly reasonable.
+            GoalData::All(..) => true,
+
+            // For simplicity, just assume these remaining types of goals must
+            // be inductive, since there is no pressing reason to consider them
+            // coinductive.
+            GoalData::Not(_) => false,
+            GoalData::EqGoal(_) => false,
+            GoalData::CannotProve => false,
+            GoalData::SubtypeGoal(_) => false,
         }
     }
 }

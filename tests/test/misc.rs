@@ -772,9 +772,9 @@ fn ambiguous_unification_in_fn() {
                 MyClosure<fn(&'static U) -> ()>: FnOnce<(&'static T,)>
             }
         } yields[SolverChoice::slg_default()] {
-            expect![["Unique; for<?U0> { substitution [?0 := ^0.0, ?1 := ^0.0], lifetime constraints [InEnvironment { environment: Env([]), goal: 'static: 'static }, InEnvironment { environment: Env([]), goal: 'static: 'static }] }"]]
+            expect!["Unique; for<?U0> { substitution [?0 := ^0.0, ?1 := ^0.0] }"]
         } yields[SolverChoice::recursive_default()] {
-            expect![["Unique; for<?U0> { substitution [?0 := ^0.0, ?1 := ^0.0], lifetime constraints [InEnvironment { environment: Env([]), goal: 'static: 'static }] }"]]
+            expect!["Unique; for<?U0> { substitution [?0 := ^0.0, ?1 := ^0.0] }"]
         }
     }
 }
